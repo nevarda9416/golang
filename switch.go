@@ -1,11 +1,13 @@
 // Switch statements express conditionals across many branches
 package main
+
 import (
 	"fmt"
 	"time"
 )
+
 func main() {
-	i:=2
+	i := 2
 	fmt.Print("Write ", i, " as ")
 	switch i {
 	case 1:
@@ -21,8 +23,8 @@ func main() {
 	default:
 		fmt.Println("It's a weekday")
 	}
-	t:=time.Now()
-	switch  {
+	t := time.Now()
+	switch {
 	case t.Hour() < 12:
 		fmt.Println("It's before noon")
 	default:

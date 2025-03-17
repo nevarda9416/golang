@@ -5,11 +5,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux" // Gorilla mux: For creating routes and HTTP handlers
 	"io/ioutil"
 	"net/http"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux" // Gorilla mux: For creating routes and HTtP handlers
 	// // An ORM tool for MySQL
 )
 
