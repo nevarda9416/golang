@@ -28,7 +28,12 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
-	defer result.Close()
+	defer func(result *sql.Rows) {
+		err := result.Close()
+		if err != nil {
+
+		}
+	}(result)
 	for result.Next() {
 		var post Post
 		err := result.Scan(&post.ID, &post.Title)
@@ -37,7 +42,10 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 		}
 		posts = append(posts, post)
 	}
-	json.NewEncoder(w).Encode(posts)
+	err = json.NewEncoder(w).Encode(posts)
+	if err != nil {
+		return
+	}
 }
 
 func createPost(w http.ResponseWriter, r *http.Request) {
@@ -50,13 +58,19 @@ func createPost(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	keyVal := make(map[string]string)
-	json.Unmarshal(body, &keyVal)
+	err = json.Unmarshal(body, &keyVal)
+	if err != nil {
+		return
+	}
 	title := keyVal["title"]
 	_, err = stmt.Exec(title)
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Fprintf(w, "New post was created")
+	_, err = fmt.Fprintf(w, "New post was created")
+	if err != nil {
+		return
+	}
 }
 
 func getPost(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +80,12 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
-	defer result.Close()
+	defer func(result *sql.Rows) {
+		err := result.Close()
+		if err != nil {
+
+		}
+	}(result)
 	var post Post
 	for result.Next() {
 		err := result.Scan(&post.ID, &post.Title)
@@ -74,7 +93,10 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 	}
-	json.NewEncoder(w).Encode(post)
+	err = json.NewEncoder(w).Encode(post)
+	if err != nil {
+		return
+	}
 }
 
 func updatePost(w http.ResponseWriter, r *http.Request) {
@@ -88,13 +110,19 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	keyVal := make(map[string]string)
-	json.Unmarshal(body, &keyVal)
+	err = json.Unmarshal(body, &keyVal)
+	if err != nil {
+		return
+	}
 	newTitle := keyVal["title"]
 	_, err = stmt.Exec(newTitle, params["id"])
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Fprintf(w, "Post with ID=%s was updated", params["id"])
+	_, err = fmt.Fprintf(w, "Post with ID=%s was updated", params["id"])
+	if err != nil {
+		return
+	}
 }
 
 func deletePost(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +135,10 @@ func deletePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Fprintf(w, "Post with ID = %s was deleted", params["id"])
+	_, err = fmt.Fprintf(w, "Post with ID = %s was deleted", params["id"])
+	if err != nil {
+		return
+	}
 }
 
 func main() {
@@ -117,7 +148,12 @@ func main() {
 	} else {
 		fmt.Println("Connection established")
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+
+		}
+	}(db)
 	// create the database. This is a one-time step
 	// Comment out if running multiple times - You may see an error otherwise
 	//db.Exec("CREATE DATABASE golang")
@@ -130,5 +166,8 @@ func main() {
 	router.HandleFunc("/posts/{id}", getPost).Methods("GET")
 	router.HandleFunc("/posts/{id}", updatePost).Methods("PUT")
 	router.HandleFunc("/posts/{id}", deletePost).Methods("DELETE")
-	http.ListenAndServe(":8000", router)
+	err := http.ListenAndServe(":8000", router)
+	if err != nil {
+		return
+	}
 }

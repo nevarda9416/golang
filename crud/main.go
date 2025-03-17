@@ -22,7 +22,10 @@ type Booking struct {
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to Homepage!")
+	_, err := fmt.Fprintf(w, "Welcome to Homepage!")
+	if err != nil {
+		return
+	}
 	fmt.Println("Endpoint Hit: Homepage")
 }
 
@@ -33,25 +36,34 @@ func createNewBooking(w http.ResponseWriter, r *http.Request) {
 	// return the string response containing the request body
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var booking Booking
-	json.Unmarshal(reqBody, &booking)
+	err := json.Unmarshal(reqBody, &booking)
+	if err != nil {
+		return
+	}
 	db.Create(&booking)
 	fmt.Println("Endpoint Hit: Creating New Booking ", r.Body)
-	json.NewEncoder(w).Encode(booking)
+	err = json.NewEncoder(w).Encode(booking)
+	if err != nil {
+		return
+	}
 }
 
 // Reading all bookings
 func returnAllBookings(w http.ResponseWriter, r *http.Request) {
-	bookings := []Booking{}
+	var bookings []Booking
 	db.Find(&bookings)
 	fmt.Println("Endpoint Hit: Reading all bookings")
-	json.NewEncoder(w).Encode(bookings)
+	err := json.NewEncoder(w).Encode(bookings)
+	if err != nil {
+		return
+	}
 }
 
 // Reading Booking detail by their Id
 func returnSingleBooking(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
-	bookings := []Booking{}
+	var bookings []Booking
 	db.Find(&bookings)
 	for _, booking := range bookings {
 		// string to int
@@ -60,7 +72,10 @@ func returnSingleBooking(w http.ResponseWriter, r *http.Request) {
 			if booking.Id == s {
 				fmt.Println(booking)
 				fmt.Println("Endpoint Hit Booking No: ", key)
-				json.NewEncoder(w).Encode(booking)
+				err := json.NewEncoder(w).Encode(booking)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
