@@ -166,7 +166,7 @@ func main() {
 	router.HandleFunc("/posts/{id}", getPost).Methods("GET")
 	router.HandleFunc("/posts/{id}", updatePost).Methods("PUT")
 	router.HandleFunc("/posts/{id}", deletePost).Methods("DELETE")
-	err := http.ListenAndServe(":8000", router)
+	err := http.ListenAndServe(":8082", router)
 	if err != nil {
 		return
 	}
